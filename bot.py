@@ -878,6 +878,7 @@ async def health_check(request):
 async def start_web_server():
     app = web.Application()
     app.router.add_get('/healthcheck', health_check)
+    app.router.add_get('/', health_check)  # ДОБАВЛЕНО: корневой путь
     runner = web.AppRunner(app)
     await runner.setup()
     port = int(os.environ.get('PORT', 10000))
