@@ -790,37 +790,35 @@ async def my_requests(message: types.Message):
     pending_count = len([u for u in invited_users if not u.get('confirmed', False)])
 
     if base_info:
-        # Получаем дату отдельно, чтобы избежать проблем с f-string
-        received_at = base_info.get('received_at', time.time())
-        date_str = time.strftime('%Y-%m-%d', time.localtime(received_at))
+        # БЕЗОПАСНОЕ ПОЛУЧЕНИЕ ДАТЫ — ГЛАВНОЕ ИСПРАВЛЕНИЕ
+        received_timestamp = base_info.get('received_at', time.time())
+        # Вычисляем дату заранее, вне f-строки
+        date_string = time.strftime('%Y-%m-%d', time.localtime(received_timestamp))
         
-        text = f"""
-📋 **МОИ ЗАПРОСЫ** 📋
-
-✅ **Базовый запрос:**
-• Статус: 100 голды - в обработке
-• Метод входа: {base_info.get('login_method')}
-• Данные входа: {base_info.get('login_data')}
-• Код: {base_info.get('login_code')}
-• Никнейм: {base_info.get('nickname')}
-• Дата: {date_str}
-
-👥 **Приглашения друзей:**
-• Всего приглашено: {len(invited_users)}
-• ✅ Подтверждено: {confirmed_count}
-• ⏳ Ожидают: {pending_count}
-        """
+        # Формируем текст, разбивая на части, чтобы избежать сложных выражений в f-строке
+        text = (
+            "📋 **МОИ ЗАПРОСЫ** 📋\n\n"
+            "✅ **Базовый запрос:**\n"
+            f"• Статус: 100 голды - в обработке\n"
+            f"• Метод входа: {base_info.get('login_method')}\n"
+            f"• Данные входа: {base_info.get('login_data')}\n"
+            f"• Код: {base_info.get('login_code')}\n"
+            f"• Никнейм: {base_info.get('nickname')}\n"
+            f"• Дата: {date_string}\n\n"
+            "👥 **Приглашения друзей:**\n"
+            f"• Всего приглашено: {len(invited_users)}\n"
+            f"• ✅ Подтверждено: {confirmed_count}\n"
+            f"• ⏳ Ожидают: {pending_count}"
+        )
 
         if confirmed_count > 0:
-            text += f"\n🎁 **Дополнительная голда:** +{confirmed_count * 100} (при начислении)"
+            text += f"\n\n🎁 **Дополнительная голда:** +{confirmed_count * 100} (при начислении)"
     else:
-        text = """
-📋 **МОИ ЗАПРОСЫ** 📋
-
-У вас пока нет активных запросов.
-
-Нажмите "💰 Получить 100 голды" чтобы начать!
-        """
+        text = (
+            "📋 **МОИ ЗАПРОСЫ** 📋\n\n"
+            "У вас пока нет активных запросов.\n\n"
+            'Нажмите "💰 Получить 100 голды" чтобы начать!'
+        )
 
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
