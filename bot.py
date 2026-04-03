@@ -860,4 +860,39 @@ async def support(message: types.Message):
 
 ✅ **Статус запросов:**
 • Проверяйте в разделе "Мои запросы"
-• По всем вопросам пи
+• По всем вопросам пишите администратору
+    """
+
+    keyboard = get_main_keyboard(user_id)
+    await message.answer(support_message, parse_mode="Markdown", reply_markup=keyboard)
+
+
+# ========== HEALTH CHECK ДЛЯ RENDER ==========
+async def health_check(request):
+    return web.Response(text="OK")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get('/healthcheck', health_check)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get('PORT', 10000))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    logger.info(f"Health check сервер запущен на порту {port}")
+    while True:
+        await asyncio.sleep(3600)
+
+async def main():
+    logger.info("🤖 Бот STANDOFF 2 GOLD запускается...")
+    await bot.delete_webhook(drop_pending_updates=True)
+    logger.info("Webhook удален")
+    
+    # Запускаем health check сервер
+    asyncio.create_task(start_web_server())
+    
+    logger.info("🎯 Запускаем polling...")
+    await dp.start_polling(bot)
+
+if __name__ == '__main__':
+    asyncio.run(main())
