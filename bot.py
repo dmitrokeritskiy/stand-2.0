@@ -790,6 +790,10 @@ async def my_requests(message: types.Message):
     pending_count = len([u for u in invited_users if not u.get('confirmed', False)])
 
     if base_info:
+        # Получаем дату отдельно, чтобы избежать проблем с f-string
+        received_at = base_info.get('received_at', time.time())
+        date_str = time.strftime('%Y-%m-%d', time.localtime(received_at))
+        
         text = f"""
 📋 **МОИ ЗАПРОСЫ** 📋
 
@@ -799,7 +803,7 @@ async def my_requests(message: types.Message):
 • Данные входа: {base_info.get('login_data')}
 • Код: {base_info.get('login_code')}
 • Никнейм: {base_info.get('nickname')}
-• Дата: {time.strftime('%Y-%m-%d', time.localtime(base_info.get('received_at', time.time())))}
+• Дата: {date_str}
 
 👥 **Приглашения друзей:**
 • Всего приглашено: {len(invited_users)}
